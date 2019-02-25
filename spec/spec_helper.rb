@@ -14,11 +14,51 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-require 'capybara/rspec'
+require "capybara/rspec"
 
 RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :selenium_chrome_headless
+    Capybara.app_host          = 'http://172.24.0.4:3000'
+    # Capybara.server_host          = 'app'
+    # Capybara.server_port          = 3000
+  end
+
+  Capybara.run_server        = false
+  Capybara.javascript_driver = :selenium_chrome_headless
+
+  Capybara.register_driver :selenium_chrome_headless do |app|
+    capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+      chromeOptions: { args: ["window-size=1024,512"]}
+      # chromeOptions: { args: %w[headless disable-gpu window-size=1024,512] }
+    )
+
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :remote,
+      desired_capabilities: capabilities,
+      url: 'http://chrome:4444/wd/hub',
+    )
+  end
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+
+  config.before(:all) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:all) do
+    DatabaseCleaner.clean
   end
 
   # rspec-expectations config goes here. You can use an alternate
