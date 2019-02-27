@@ -19,7 +19,7 @@ require "capybara/rspec"
 RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :selenium_chrome_headless
-    Capybara.app_host          = 'http://172.24.0.4:3000'
+    Capybara.app_host          = 'http://172.22.0.2:3000'
     # Capybara.server_host          = 'app'
     # Capybara.server_port          = 3000
   end
